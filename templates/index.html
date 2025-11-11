@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ILovePDF v2</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #e53935;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      justify-items: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 300px;
+      transition: transform 0.2s ease;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card h2 {
+      color: #d32f2f;
+      margin-bottom: 10px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+    input[type="file"],
+    input[type="number"],
+    input[type="text"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background: #b71c1c; }
+    footer {
+      margin-top: 40px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>❤️ ILovePDF Version 2</h1>
+
+  <div class="grid">
+
+    <!-- IMAGE TO PDF -->
+    <div class="card">
+      <h2>Image ➡️ PDF</h2>
+      <form action="/image_to_pdf" method="post" enctype="multipart/form-data">
+        <label>Select Images:</label>
+        <input type="file" name="image_files" multiple accept="image/*" required>
+        <label>Output File Name:</label>
+        <input type="text" name="output_name" placeholder="MyImagePDF">
+        <button type="submit">Convert to PDF</button>
+      </form>
+    </div>
+
+    <!-- SPLIT PDF -->
+    <div class="card">
+      <h2>Split PDF</h2>
+      <form action="/split" method="post" enctype="multipart/form-data">
+        <label>Select PDF File:</label>
+        <input type="file" name="pdf_file" required>
+        <label>Start Page:</label>
+        <input type="number" name="start_page" required>
+        <label>End Page:</label>
+        <input type="number" name="end_page" required>
+        <label>Output File Name:</label>
+        <input type="text" name="output_name" placeholder="MySplitFile">
+        <button type="submit">Split PDF</button>
+      </form>
+    </div>
+
+    <!-- MERGE PDF -->
+    <div class="card">
+      <h2>Merge PDFs</h2>
+      <form action="/merge" method="post" enctype="multipart/form-data">
+        <label>PDF File 1:</label>
+        <input type="file" name="pdf_file1" accept="application/pdf">
+        <label>PDF File 2:</label>
+        <input type="file" name="pdf_file2" accept="application/pdf">
+        <label>PDF File 3:</label>
+        <input type="file" name="pdf_file3" accept="application/pdf">
+        <label>Output File Name:</label>
+        <input type="text" name="output_name" placeholder="MyMergedFile">
+        <button type="submit">Merge PDFs</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    Made with ❤️ in Python & Flask
+  </footer>
+</body>
+</html>
