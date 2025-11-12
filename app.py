@@ -84,49 +84,32 @@ def merge_pdfs():
     merger.close()
     output_stream.seek(0)
 
-<<<<<<< HEAD
-    return send_file(output_path, as_attachment=True)
+    output_filename = f"{secure_filename(custom_name)}.pdf"
+    return send_file(output_stream, as_attachment=True, download_name=output_filename)
 
 # ---------- COMPRESS PDF ----------
 @app.route("/compress", methods=["POST"])
 def compress_pdf():
     file = request.files["pdf_file"]
-    quality = request.form.get("quality", "medium")  # user can choose compression level
+    quality = request.form.get("quality", "medium")
     output_name = request.form.get("output_name", "compressed")
 
     if not file or not file.filename.endswith(".pdf"):
         return "Please upload a valid PDF file", 400
 
-    filename = secure_filename(file.filename)
-    input_path = os.path.join(UPLOAD_FOLDER, filename)
-    output_path = os.path.join(OUTPUT_FOLDER, f"{secure_filename(output_name)}.pdf")
+    reader = PdfReader(file.stream)
+    writer = PdfWriter()
 
-    file.save(input_path)
+    for page in reader.pages:
+        page.compress_content_streams()
+        writer.add_page(page)
 
-    try:
-        from PyPDF2 import PdfReader, PdfWriter
-        reader = PdfReader(input_path)
-        writer = PdfWriter()
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
 
-        
-        for page in reader.pages:
-            page.compress_content_streams()  
-            writer.add_page(page)
-
-        with open(output_path, "wb") as f:
-            writer.write(f)
-
-    except Exception as e:
-        return f"Error compressing PDF: {e}", 500
-
-    return send_file(output_path, as_attachment=True)
-
-=======
-    output_filename = f"{secure_filename(custom_name)}.pdf"
+    output_filename = f"{secure_filename(output_name)}.pdf"
     return send_file(output_stream, as_attachment=True, download_name=output_filename)
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
