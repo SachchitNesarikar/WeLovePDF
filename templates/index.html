@@ -91,8 +91,8 @@
   <h1> WeLovePDF </h1>
 
   <!-- FIRST ROW OF TOOLS -->
+<!-- FIRST ROW: CONVERSION TOOLS -->
 <div class="grid">
-
   <!-- IMAGE TO PDF -->
   <div class="card">
     <h2>🖼️ Image ➡️ PDF</h2>
@@ -107,6 +107,45 @@
     </form>
   </div>
 
+  <!-- PDF IMAGE EXTRACTION -->
+  <div class="card">
+    <h2>🖼️ Extract Images from PDF</h2>
+    <form action="/extract_images" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <label>Output ZIP Name:</label>
+      <input type="text" name="output_name" placeholder="ExtractedImages">
+      <button type="submit">Extract Images</button>
+    </form>
+  </div>
+
+  <!-- WORD TO PDF -->
+  <div class="card">
+    <h2>📄 Word ➡️ PDF</h2>
+    <form action="/word_to_pdf" method="post" enctype="multipart/form-data">
+      <label>Select Word File (.docx):</label>
+      <input type="file" name="word_file" accept=".doc,.docx" required>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="ConvertedPDF">
+      <button type="submit">Convert to PDF</button>
+    </form>
+  </div>
+
+  <!-- PDF TO WORD -->
+  <div class="card">
+    <h2>📤 PDF ➡️ Word</h2>
+    <form action="/pdf_to_word" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="ConvertedWord">
+      <button type="submit">Convert to Word</button>
+    </form>
+  </div>
+</div>
+
+<!-- SECOND ROW: PDF UTILITIES + ANALYSIS -->
+<div class="grid" style="margin-top: 40px;">
   <!-- SPLIT PDF -->
   <div class="card">
     <h2>✂️ Split PDF</h2>
@@ -163,9 +202,18 @@
     </form>
   </div>
 
+  <!-- ANALYSE PDF -->
+  <div class="card">
+    <h2>🔍 Analyse PDF</h2>
+    <form action="/analyse_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <button type="submit">Analyse</button>
+    </form>
+  </div>
 </div>
 
-<!-- SECOND ROW FOR COMPRESSION -->
+<!-- THIRD ROW: COMPRESSION TOOLS -->
 <div class="grid" style="margin-top: 40px;">
   <!-- COMPRESS PDF -->
   <div class="card">
@@ -190,8 +238,60 @@
       <button type="submit">Compress PDF</button>
     </form>
   </div>
+
+  <!-- COMPRESS IMAGE -->
+  <div class="card">
+    <h2>🗜️ Compress Image</h2>
+    <form action="/compress_image" method="post" enctype="multipart/form-data">
+      <label>Select Image File:</label>
+      <input type="file" name="image_file" accept="image/*" required>
+      <div class="row">
+        <div class="half">
+          <label>Quality (1–100):</label>
+          <input type="number" name="quality" min="1" max="100" value="70">
+        </div>
+        <div class="half">
+          <label>Output File Name:</label>
+          <input type="text" name="output_name" placeholder="CompressedImage">
+        </div>
+      </div>
+      <button type="submit">Compress Image</button>
+    </form>
+  </div>
 </div>
 
+<h2>AI Note Generator</h2>
+<form id="noteForm">
+  <input type="text" name="topic" placeholder="Enter main topic" required>
+  <button type="submit">Generate Subtopics</button>
+</form>
+
+<div id="subtopics"></div>
+<div id="notes"></div>
+
+<script>
+document.getElementById("noteForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const res = await fetch("/generate_subtopics", { method: "POST", body: formData });
+  const data = await res.json();
+  const subDiv = document.getElementById("subtopics");
+  subDiv.innerHTML = "<h3>Select Subtopics</h3>";
+  data.subtopics.forEach((sub, i) => {
+    subDiv.innerHTML += `<label><input type="checkbox" name="subtopics" value="${sub}"> ${sub}</label><br>`;
+  });
+  subDiv.innerHTML += `<button onclick="generateNotes()">Generate Notes</button>`;
+});
+
+async function generateNotes() {
+  const checkboxes = document.querySelectorAll("input[name='subtopics']:checked");
+  const formData = new FormData();
+  checkboxes.forEach(cb => formData.append("subtopics", cb.value));
+  const res = await fetch("/generate_notes", { method: "POST", body: formData });
+  const data = await res.json();
+  document.getElementById("notes").innerHTML = `<h3>Generated Notes</h3><pre>${data.notes}</pre>`;
+}
+</script>
 
 
   <footer>
