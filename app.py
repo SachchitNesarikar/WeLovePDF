@@ -131,7 +131,7 @@ def compress_pdf():
 @app.route("/delete_pages", methods=["POST"])
 def delete_pages():
     file = request.files["pdf_file"]
-    cfpages_to_delete = request.form.get("pages_to_delete", "").strip()
+    pages_to_delete = request.form.get("pages_to_delete", "").strip()
     output_name = request.form.get("output_name", "DeletedPages")
 
     if not file or not file.filename.endswith(".pdf"):
@@ -139,7 +139,6 @@ def delete_pages():
     if not pages_to_delete:
         return "Please specify page numbers to delete", 400
 
-    # Parse pages like "1,3,5-7"
     pages_to_delete_set = set()
     for part in pages_to_delete.split(","):
         part = part.strip()
@@ -271,7 +270,6 @@ def edit_pdf():
         return "Please enter text to add", 400
 
     try:
-        # Default to first page if empty
         page_number = int(page_number_str) - 1 if page_number_str else 0
 
         overlay_stream = BytesIO()
