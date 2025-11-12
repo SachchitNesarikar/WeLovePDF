@@ -90,20 +90,17 @@
 <body>
   <h1> WeLovePDF </h1>
 
-  <!-- FIRST ROW OF TOOLS -->
 <!-- FIRST ROW: CONVERSION TOOLS -->
 <div class="grid">
   <!-- IMAGE TO PDF -->
   <div class="card">
-    <h2>🖼️ Image ➡️ PDF</h2>
-    <form id="imageForm" action="/image_to_pdf" method="post" enctype="multipart/form-data">
-      <label>Select Images:</label>
-      <input type="file" id="imageInput" name="image_files" accept="image/*" multiple required>
-      <button type="button" class="add-btn" id="addImageBtn">+ Add More Images</button>
-      <div class="preview-list" id="imagePreviewList">No images added yet</div>
-      <label>Output File Name:</label>
-      <input type="text" name="output_name" placeholder="MyImagePDF">
-      <button type="submit">Convert to PDF</button>
+    <h2>🖼️ Extract Images from PDF</h2>
+    <form action="/extract_images" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <label>Output ZIP Name:</label>
+      <input type="text" name="output_name" placeholder="ExtractedImages">
+      <button type="submit">Extract Images</button>
     </form>
   </div>
 
@@ -144,7 +141,6 @@
   </div>
 </div>
 
-<!-- SECOND ROW: PDF UTILITIES + ANALYSIS -->
 <div class="grid" style="margin-top: 40px;">
   <!-- SPLIT PDF -->
   <div class="card">
