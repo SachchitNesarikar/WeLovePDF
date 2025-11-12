@@ -33,16 +33,51 @@
 
     * { box-sizing: border-box; margin:0; padding:0; }
     body {
+<<<<<<< HEAD
       font-family: 'Poppins', 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       padding: 2rem 1rem;
+=======
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      color: #e53935;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      justify-items: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 350px;
+      transition: transform 0.2s ease;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card h2 {
+      color: #d32f2f;
+      margin-bottom: 10px;
+    }
+    form {
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
       display: flex;
       flex-direction: column;
       align-items: center;
       transition: background 0.4s ease;
     }
+<<<<<<< HEAD
     h1 {
       font-size: 2.8rem;
       background: linear-gradient(90deg, var(--primary), var(--secondary));
@@ -50,6 +85,23 @@
       -webkit-text-fill-color: transparent;
       margin-bottom: .5rem;
       animation: pulse 2s infinite;
+=======
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .half {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    input[type="file"],
+    input[type="number"],
+    input[type="text"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
     }
     @keyframes pulse {
       0%,100% { transform: scale(1); }
@@ -159,6 +211,7 @@
       height: 100%;
       z-index: 2;
     }
+<<<<<<< HEAD
     .file-wrapper .custom-btn {
       flex: 0 0 auto;
       padding: .6rem 1rem;
@@ -228,6 +281,22 @@
       z-index: 100;
     }
 
+=======
+    button:hover { background: #b71c1c; }
+    .add-btn {
+      background: #555;
+      margin-top: 5px;
+    }
+    .preview-list {
+      font-size: 0.9em;
+      color: #555;
+      background: #fafafa;
+      border-radius: 5px;
+      padding: 5px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
     footer {
       margin-top:3rem;
       font-size:.9rem;
@@ -243,6 +312,7 @@
   </style>
 </head>
 <body>
+<<<<<<< HEAD
   <!-- Dark Mode Toggle -->
   <button class="theme-toggle" onclick="document.body.dataset.theme=document.body.dataset.theme==='dark'?'light':'dark'">
     <i class="fas fa-moon"></i>
@@ -250,11 +320,15 @@
 
   <h1>WeLovePDF</h1>
   <p class="subtitle">Convert, split, merge & compress PDFs – <strong>fast & free</strong> for college life!</p>
+=======
+  <h1> WeLovePDF </h1>
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
 
   <div class="grid">
 
     <!-- IMAGE TO PDF -->
     <div class="card">
+<<<<<<< HEAD
       <h2><i class="fas fa-image"></i> Image to PDF</h2>
       <form action="/image_to_pdf" method="post" enctype="multipart/form-data">
         <div class="input-group">
@@ -271,12 +345,26 @@
           <input type="text" name="output_name" placeholder=" " required id="img-name">
           <label for="img-name">Output File Name</label>
         </div>
+=======
+      <h2>Image ➡️ PDF</h2>
+      <form id="imageForm" action="/image_to_pdf" method="post" enctype="multipart/form-data">
+        <label>Select Images:</label>
+        <input type="file" id="imageInput" name="image_files" accept="image/*" multiple required>
+
+        <button type="button" class="add-btn" id="addImageBtn">+ Add More Images</button>
+
+        <div class="preview-list" id="imagePreviewList">No images added yet</div>
+
+        <label>Output File Name:</label>
+        <input type="text" name="output_name" placeholder="MyImagePDF">
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
         <button type="submit">Convert to PDF</button>
       </form>
     </div>
 
     <!-- SPLIT PDF -->
     <div class="card">
+<<<<<<< HEAD
       <h2><i class="fas fa-cut"></i> Split PDF</h2>
       <form action="/split" method="post" enctype="multipart/form-data">
         <div class="input-group">
@@ -303,12 +391,33 @@
           <input type="text" name="output_name" placeholder=" " required id="split-name">
           <label for="split-name">Output File Name</label>
         </div>
+=======
+      <h2>✂️ Split PDF</h2>
+      <form action="/split" method="post" enctype="multipart/form-data">
+        <label>Select PDF File:</label>
+        <input type="file" name="pdf_file" required>
+
+        <div class="row">
+          <div class="half">
+            <label>Start Page:</label>
+            <input type="number" name="start_page" required>
+          </div>
+          <div class="half">
+            <label>End Page:</label>
+            <input type="number" name="end_page" required>
+          </div>
+        </div>
+
+        <label>Output File Name:</label>
+        <input type="text" name="output_name" placeholder="MySplitFile">
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
         <button type="submit">Split PDF</button>
       </form>
     </div>
 
     <!-- MERGE PDF -->
     <div class="card">
+<<<<<<< HEAD
       <h2><i class="fas fa-object-group"></i> Merge PDFs</h2>
       <form action="/merge" method="post" enctype="multipart/form-data">
         <div class="input-group">
@@ -343,10 +452,24 @@
           <input type="text" name="output_name" placeholder=" " id="merge-name">
           <label for="merge-name">Output File Name</label>
         </div>
+=======
+      <h2>🔗 Merge PDFs</h2>
+      <form id="mergeForm" action="/merge" method="post" enctype="multipart/form-data">
+        <label>Select PDF Files:</label>
+        <input type="file" id="mergeInput" name="pdf_files" accept="application/pdf" multiple required>
+
+        <button type="button" class="add-btn" id="addMergeBtn">+ Add More PDFs</button>
+
+        <div class="preview-list" id="mergePreviewList">No PDFs added yet</div>
+
+        <label>Output File Name:</label>
+        <input type="text" name="output_name" placeholder="MyMergedFile">
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
         <button type="submit">Merge PDFs</button>
       </form>
     </div>
 
+<<<<<<< HEAD
     <!-- COMPRESS PDF -->
     <div class="card">
       <h2><i class="fas fa-compress-arrows-alt"></i> Compress PDF</h2>
@@ -378,11 +501,33 @@
           <label for="comp-name">Output File Name</label>
         </div>
         <button type="submit">Compress PDF</button>
+=======
+    <!-- DELETE PDF PAGES -->
+    <div class="card">
+      <h2>🗑️ Delete PDF Pages</h2>
+      <form action="/delete_pages" method="post" enctype="multipart/form-data">
+        <label>Select PDF File:</label>
+        <input type="file" name="pdf_file" required>
+
+        <div class="row">
+          <div class="half">
+            <label>Pages to Delete:</label>
+            <input type="text" name="pages_to_delete" placeholder="1,3,5">
+          </div>
+          <div class="half">
+            <label>Output File Name:</label>
+            <input type="text" name="output_name" placeholder="PDFAfterDelete">
+          </div>
+        </div>
+
+        <button type="submit">Delete Pages</button>
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
       </form>
     </div>
 
   </div>
 
+<<<<<<< HEAD
   <footer>Made with <i class="fas fa-heart" style="color:var(--primary)"></i> in Python & Flask</footer>
 
   <!-- File Name Display Script -->
@@ -398,6 +543,81 @@
         nameBox.textContent = input.multiple ? names.join(', ') : names[0];
       });
     });
+=======
+  <footer>
+    Made with ❤️ in Python & Flask
+  </footer>
+
+  <script>
+    // === IMAGE HANDLER ===
+    const imageInput = document.getElementById("imageInput");
+    const addImageBtn = document.getElementById("addImageBtn");
+    const imagePreviewList = document.getElementById("imagePreviewList");
+    let allImageFiles = [];
+
+    addImageBtn.addEventListener("click", () => {
+      const newInput = document.createElement("input");
+      newInput.type = "file";
+      newInput.accept = "image/*";
+      newInput.multiple = true;
+      newInput.click();
+
+      newInput.addEventListener("change", (e) => {
+        const newFiles = Array.from(e.target.files);
+        allImageFiles.push(...newFiles);
+        updatePreview(allImageFiles, imagePreviewList, imageInput);
+      });
+    });
+
+    imageInput.addEventListener("change", (e) => {
+      allImageFiles = Array.from(e.target.files);
+      updatePreview(allImageFiles, imagePreviewList, imageInput);
+    });
+
+    // === MERGE HANDLER ===
+    const mergeInput = document.getElementById("mergeInput");
+    const addMergeBtn = document.getElementById("addMergeBtn");
+    const mergePreviewList = document.getElementById("mergePreviewList");
+    let allMergeFiles = [];
+
+    addMergeBtn.addEventListener("click", () => {
+      const newInput = document.createElement("input");
+      newInput.type = "file";
+      newInput.accept = "application/pdf";
+      newInput.multiple = true;
+      newInput.click();
+
+      newInput.addEventListener("change", (e) => {
+        const newFiles = Array.from(e.target.files);
+        allMergeFiles.push(...newFiles);
+        updatePreview(allMergeFiles, mergePreviewList, mergeInput);
+      });
+    });
+
+    mergeInput.addEventListener("change", (e) => {
+      allMergeFiles = Array.from(e.target.files);
+      updatePreview(allMergeFiles, mergePreviewList, mergeInput);
+    });
+
+    // === COMMON PREVIEW UPDATER ===
+    function updatePreview(fileList, previewList, inputEl) {
+      if (fileList.length === 0) {
+        previewList.textContent = "No files added yet";
+        return;
+      }
+      previewList.innerHTML = "";
+      fileList.forEach((file, i) => {
+        const div = document.createElement("div");
+        div.textContent = `${i + 1}. ${file.name}`;
+        previewList.appendChild(div);
+      });
+
+      // Replace inputEl's files
+      const dt = new DataTransfer();
+      fileList.forEach(file => dt.items.add(file));
+      inputEl.files = dt.files;
+    }
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
   </script>
 </body>
 </html>
