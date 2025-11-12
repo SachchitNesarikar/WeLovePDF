@@ -3,43 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeLovePDF</title>
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        integrity="sha512-XXXXX" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <!-- Google Fonts: Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+  <title>ILovePDF v2</title>
   <style>
-    :root {
-      --primary: #ff3366;      /* hot pink */
-      --secondary: #00d4ff;    /* electric teal */
-      --bg: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-      --card-bg: rgba(255,255,255,0.85);
-      --text: #222;
-      --shadow: 0 8px 32px rgba(0,0,0,0.12);
-    }
-    [data-theme="dark"] {
-      --primary: #ff6699;
-      --secondary: #33eaff;
-      --bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      --card-bg: rgba(30,30,45,0.85);
-      --text: #f0f0f0;
-      --shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
-
-    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-<<<<<<< HEAD
-      font-family: 'Poppins', 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 2rem 1rem;
-=======
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f7fa;
       margin: 0;
@@ -71,21 +37,11 @@
       margin-bottom: 10px;
     }
     form {
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
       display: flex;
       flex-direction: column;
-      align-items: center;
-      transition: background 0.4s ease;
+      gap: 10px;
+      text-align: left;
     }
-<<<<<<< HEAD
-    h1 {
-      font-size: 2.8rem;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: .5rem;
-      animation: pulse 2s infinite;
-=======
     .row {
       display: flex;
       gap: 10px;
@@ -101,187 +57,16 @@
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 5px;
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
     }
-    @keyframes pulse {
-      0%,100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    .subtitle { font-size:1.1rem; opacity:.8; margin-bottom:2rem; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-      gap: 1.8rem;
-      width: 100%;
-      max-width: 1300px;
-    }
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border-radius: 1.2rem;
-      padding: 1.8rem;
-      box-shadow: var(--shadow);
-      transition: all .3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .card::before {
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(135deg, var(--primary) 0%, transparent 70%);
-      opacity:0;
-      transition:opacity .3s;
-    }
-    .card:hover::before { opacity:0.07; }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0,0,0,.2); }
-
-    .card h2 {
-      font-size:1.4rem;
-      margin-bottom:.8rem;
-      color:var(--primary);
-      display:flex;
-      align-items:center;
-      gap:.5rem;
-    }
-    .card h2 i { font-size:1.6rem; color:var(--secondary); }
-
-    form { display:flex; flex-direction:column; gap:.9rem; }
-
-    /* Input Groups */
-    .input-group {
-      position: relative;
-    }
-    .input-group input,
-    .input-group select {
-      width:100%;
-      padding: .9rem 1rem .9rem 2.6rem;
-      border:2px solid transparent;
-      border-radius:.8rem;
-      background:rgba(255,255,255,.7);
-      font-size:1rem;
-      transition:border .3s,background .3s;
-    }
-    .input-group input:focus,
-    .input-group select:focus {
-      outline:none;
-      border-color:var(--secondary);
-      background:#fff;
-    }
-    .input-group label {
-      position:absolute;
-      left:2.6rem; top:.9rem;
-      font-size:.9rem;
-      color:#777;
-      pointer-events:none;
-      transition: all .2s ease;
-    }
-    .input-group input:focus ~ label,
-    .input-group input:valid ~ label,
-    .input-group select:focus ~ label,
-    .input-group select:valid ~ label {
-      top:-.6rem; left:1rem; font-size:.75rem; color:var(--primary);
-      background:var(--card-bg);
-      padding:0 .3rem;
-    }
-    .input-group i {
-      position:absolute;
-      left:.9rem; top:1rem;
-      color:#aaa;
-      transition:color .3s;
-    }
-    .input-group input:focus ~ i,
-    .input-group select:focus ~ i { color:var(--secondary); }
-
-    /* FILE INPUT FIX */
-    .file-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      width: 100%;
-    }
-    .file-wrapper input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-    }
-<<<<<<< HEAD
-    .file-wrapper .custom-btn {
-      flex: 0 0 auto;
-      padding: .6rem 1rem;
-      background: var(--secondary);
-      color: #fff;
-      border-radius: .6rem;
-      font-size: .9rem;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-    .file-wrapper .file-name {
-      flex: 1;
-      padding: .9rem 1rem .9rem 2.6rem;
-      background: rgba(255,255,255,.7);
-      border-radius: .8rem;
-      font-size: 1rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #555;
-    }
-    .file-wrapper .input-group i {
-      left: .9rem;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* Button */
     button {
-      margin-top:.6rem;
-      padding:.9rem;
-      font-weight:600;
-      font-size:1rem;
-      color:#fff;
-      background: var(--primary);
-      border:none;
-      border-radius:.8rem;
-      cursor:pointer;
-      position:relative;
-      overflow:hidden;
-      transition:background .3s;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
     }
-    button:hover { background:var(--secondary); }
-    button::after {
-      content:"";
-      position:absolute;
-      inset:0;
-      background:rgba(255,255,255,.2);
-      transform:scale(0);
-      border-radius:50%;
-      transition:transform .4s;
-    }
-    button:active::after { transform:scale(2); }
-
-    /* Dark Mode Toggle */
-    .theme-toggle {
-      position:fixed;
-      top:1.2rem; right:1.2rem;
-      background:rgba(0,0,0,.2);
-      border:none;
-      border-radius:50%;
-      width:44px; height:44px;
-      color:#fff;
-      font-size:1.2rem;
-      cursor:pointer;
-      backdrop-filter:blur(8px);
-      z-index: 100;
-    }
-
-=======
     button:hover { background: #b71c1c; }
     .add-btn {
       background: #555;
@@ -296,254 +81,119 @@
       max-height: 100px;
       overflow-y: auto;
     }
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
     footer {
-      margin-top:3rem;
-      font-size:.9rem;
-      opacity:.7;
-    }
-
-    @media (max-width:480px) {
-      h1 { font-size:2.2rem; }
-      .grid { gap:1.2rem; }
-      .file-wrapper { flex-direction: column; align-items: stretch; }
-      .file-wrapper .custom-btn { text-align: center; }
+      margin-top: 40px;
+      color: #777;
     }
   </style>
 </head>
 <body>
-<<<<<<< HEAD
-  <!-- Dark Mode Toggle -->
-  <button class="theme-toggle" onclick="document.body.dataset.theme=document.body.dataset.theme==='dark'?'light':'dark'">
-    <i class="fas fa-moon"></i>
-  </button>
-
-  <h1>WeLovePDF</h1>
-  <p class="subtitle">Convert, split, merge & compress PDFs – <strong>fast & free</strong> for college life!</p>
-=======
   <h1> WeLovePDF </h1>
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
 
-  <div class="grid">
+  <!-- FIRST ROW OF TOOLS -->
+<div class="grid">
 
-    <!-- IMAGE TO PDF -->
-    <div class="card">
-<<<<<<< HEAD
-      <h2><i class="fas fa-image"></i> Image to PDF</h2>
-      <form action="/image_to_pdf" method="post" enctype="multipart/form-data">
-        <div class="input-group">
-          <i class="fas fa-images"></i>
-          <div class="file-wrapper">
-            <input type="file" name="image_files" multiple accept="image/*" required id="img-files">
-            <div class="custom-btn">Choose Images</div>
-            <div class="file-name" id="img-files-name">No file chosen</div>
-          </div>
-          
-        </div>
-        <div class="input-group">
-          <i class="fas fa-file-signature"></i>
-          <input type="text" name="output_name" placeholder=" " required id="img-name">
-          <label for="img-name">Output File Name</label>
-        </div>
-=======
-      <h2>Image ➡️ PDF</h2>
-      <form id="imageForm" action="/image_to_pdf" method="post" enctype="multipart/form-data">
-        <label>Select Images:</label>
-        <input type="file" id="imageInput" name="image_files" accept="image/*" multiple required>
-
-        <button type="button" class="add-btn" id="addImageBtn">+ Add More Images</button>
-
-        <div class="preview-list" id="imagePreviewList">No images added yet</div>
-
-        <label>Output File Name:</label>
-        <input type="text" name="output_name" placeholder="MyImagePDF">
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
-        <button type="submit">Convert to PDF</button>
-      </form>
-    </div>
-
-    <!-- SPLIT PDF -->
-    <div class="card">
-<<<<<<< HEAD
-      <h2><i class="fas fa-cut"></i> Split PDF</h2>
-      <form action="/split" method="post" enctype="multipart/form-data">
-        <div class="input-group">
-          <i class="fas fa-file-pdf"></i>
-          <div class="file-wrapper">
-            <input type="file" name="pdf_file" accept="application/pdf" required id="split-file">
-            <div class="custom-btn">Choose PDF</div>
-            <div class="file-name" id="split-file-name">No file chosen</div>
-          </div>
-          
-        </div>
-        <div class="input-group">
-          <i class="fas fa-play"></i>
-          <input type="number" name="start_page" min="1" required id="split-start">
-          <label for="split-start">Start Page</label>
-        </div>
-        <div class="input-group">
-          <i class="fas fa-stop"></i>
-          <input type="number" name="end_page" min="1" required id="split-end">
-          <label for="split-end">End Page</label>
-        </div>
-        <div class="input-group">
-          <i class="fas fa-file-signature"></i>
-          <input type="text" name="output_name" placeholder=" " required id="split-name">
-          <label for="split-name">Output File Name</label>
-        </div>
-=======
-      <h2>✂️ Split PDF</h2>
-      <form action="/split" method="post" enctype="multipart/form-data">
-        <label>Select PDF File:</label>
-        <input type="file" name="pdf_file" required>
-
-        <div class="row">
-          <div class="half">
-            <label>Start Page:</label>
-            <input type="number" name="start_page" required>
-          </div>
-          <div class="half">
-            <label>End Page:</label>
-            <input type="number" name="end_page" required>
-          </div>
-        </div>
-
-        <label>Output File Name:</label>
-        <input type="text" name="output_name" placeholder="MySplitFile">
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
-        <button type="submit">Split PDF</button>
-      </form>
-    </div>
-
-    <!-- MERGE PDF -->
-    <div class="card">
-<<<<<<< HEAD
-      <h2><i class="fas fa-object-group"></i> Merge PDFs</h2>
-      <form action="/merge" method="post" enctype="multipart/form-data">
-        <div class="input-group">
-          <i class="fas fa-file-pdf"></i>
-          <div class="file-wrapper">
-            <input type="file" name="pdf_file1" accept="application/pdf" id="merge1">
-            <div class="custom-btn">PDF 1</div>
-            <div class="file-name" id="merge1-name">No file</div>
-          </div>
-          
-        </div>
-        <div class="input-group">
-          <i class="fas fa-file-pdf"></i>
-          <div class="file-wrapper">
-            <input type="file" name="pdf_file2" accept="application/pdf" id="merge2">
-            <div class="custom-btn">PDF 2</div>
-            <div class="file-name" id="merge2-name">No file</div>
-          </div>
-          
-        </div>
-        <div class="input-group">
-          <i class="fas fa-file-pdf"></i>
-          <div class="file-wrapper">
-            <input type="file" name="pdf_file3" accept="application/pdf" id="merge3">
-            <div class="custom-btn">PDF 3</div>
-            <div class="file-name" id="merge3-name">No file</div>
-          </div>
-          
-        </div>
-        <div class="input-group">
-          <i class="fas fa-file-signature"></i>
-          <input type="text" name="output_name" placeholder=" " id="merge-name">
-          <label for="merge-name">Output File Name</label>
-        </div>
-=======
-      <h2>🔗 Merge PDFs</h2>
-      <form id="mergeForm" action="/merge" method="post" enctype="multipart/form-data">
-        <label>Select PDF Files:</label>
-        <input type="file" id="mergeInput" name="pdf_files" accept="application/pdf" multiple required>
-
-        <button type="button" class="add-btn" id="addMergeBtn">+ Add More PDFs</button>
-
-        <div class="preview-list" id="mergePreviewList">No PDFs added yet</div>
-
-        <label>Output File Name:</label>
-        <input type="text" name="output_name" placeholder="MyMergedFile">
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
-        <button type="submit">Merge PDFs</button>
-      </form>
-    </div>
-
-<<<<<<< HEAD
-    <!-- COMPRESS PDF -->
-    <div class="card">
-      <h2><i class="fas fa-compress-arrows-alt"></i> Compress PDF</h2>
-      <form action="/compress" method="post" enctype="multipart/form-data">
-        <div class="input-group">
-          <i class="fas fa-file-pdf"></i>
-          <div class="file-wrapper">
-            <input type="file" name="pdf_file" accept="application/pdf" required id="comp-file">
-            <div class="custom-btn">Choose PDF</div>
-            <div class="file-name" id="comp-file-name">No file chosen</div>
-          </div>
-         
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-sliders-h"></i>
-          <select name="quality" required id="comp-quality">
-            <option value="" disabled selected></option>
-            <option value="high">High (tiny size)</option>
-            <option value="medium">Medium (balanced)</option>
-            <option value="low">Low (minimal)</option>
-          </select>
-          <label for="comp-quality">Compression Level</label>
-        </div>
-
-        <div class="input-group">
-          <i class="fas fa-file-signature"></i>
-          <input type="text" name="output_name" placeholder=" " required id="comp-name">
-          <label for="comp-name">Output File Name</label>
-        </div>
-        <button type="submit">Compress PDF</button>
-=======
-    <!-- DELETE PDF PAGES -->
-    <div class="card">
-      <h2>🗑️ Delete PDF Pages</h2>
-      <form action="/delete_pages" method="post" enctype="multipart/form-data">
-        <label>Select PDF File:</label>
-        <input type="file" name="pdf_file" required>
-
-        <div class="row">
-          <div class="half">
-            <label>Pages to Delete:</label>
-            <input type="text" name="pages_to_delete" placeholder="1,3,5">
-          </div>
-          <div class="half">
-            <label>Output File Name:</label>
-            <input type="text" name="output_name" placeholder="PDFAfterDelete">
-          </div>
-        </div>
-
-        <button type="submit">Delete Pages</button>
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
-      </form>
-    </div>
-
+  <!-- IMAGE TO PDF -->
+  <div class="card">
+    <h2>🖼️ Image ➡️ PDF</h2>
+    <form id="imageForm" action="/image_to_pdf" method="post" enctype="multipart/form-data">
+      <label>Select Images:</label>
+      <input type="file" id="imageInput" name="image_files" accept="image/*" multiple required>
+      <button type="button" class="add-btn" id="addImageBtn">+ Add More Images</button>
+      <div class="preview-list" id="imagePreviewList">No images added yet</div>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="MyImagePDF">
+      <button type="submit">Convert to PDF</button>
+    </form>
   </div>
 
-<<<<<<< HEAD
-  <footer>Made with <i class="fas fa-heart" style="color:var(--primary)"></i> in Python & Flask</footer>
+  <!-- SPLIT PDF -->
+  <div class="card">
+    <h2>✂️ Split PDF</h2>
+    <form action="/split" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <div class="row">
+        <div class="half">
+          <label>Start Page:</label>
+          <input type="number" name="start_page" required>
+        </div>
+        <div class="half">
+          <label>End Page:</label>
+          <input type="number" name="end_page" required>
+        </div>
+      </div>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="MySplitFile">
+      <button type="submit">Split PDF</button>
+    </form>
+  </div>
 
-  <!-- File Name Display Script -->
-  <script>
-    document.querySelectorAll('input[type="file"]').forEach(input => {
-      const nameBox = document.getElementById(input.id + '-name');
-      input.addEventListener('change', () => {
-        if (input.files.length === 0) {
-          nameBox.textContent = 'No file chosen';
-          return;
-        }
-        const names = Array.from(input.files).map(f => f.name);
-        nameBox.textContent = input.multiple ? names.join(', ') : names[0];
-      });
-    });
-=======
+  <!-- MERGE PDF -->
+  <div class="card">
+    <h2>🔗 Merge PDFs</h2>
+    <form id="mergeForm" action="/merge" method="post" enctype="multipart/form-data">
+      <label>Select PDF Files:</label>
+      <input type="file" id="mergeInput" name="pdf_files" accept="application/pdf" multiple required>
+      <button type="button" class="add-btn" id="addMergeBtn">+ Add More PDFs</button>
+      <div class="preview-list" id="mergePreviewList">No PDFs added yet</div>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="MyMergedFile">
+      <button type="submit">Merge PDFs</button>
+    </form>
+  </div>
+
+  <!-- DELETE PDF PAGES -->
+  <div class="card">
+    <h2>🗑️ Delete PDF Pages</h2>
+    <form action="/delete_pages" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <div class="row">
+        <div class="half">
+          <label>Pages to Delete:</label>
+          <input type="text" name="pages_to_delete" placeholder="1,3,5">
+        </div>
+        <div class="half">
+          <label>Output File Name:</label>
+          <input type="text" name="output_name" placeholder="PDFAfterDelete">
+        </div>
+      </div>
+      <button type="submit">Delete Pages</button>
+    </form>
+  </div>
+
+</div>
+
+<!-- SECOND ROW FOR COMPRESSION -->
+<div class="grid" style="margin-top: 40px;">
+  <!-- COMPRESS PDF -->
+  <div class="card">
+    <h2>📉 Compress PDF</h2>
+    <form action="/compress" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <div class="row">
+        <div class="half">
+          <label>Compression Quality:</label>
+          <select name="quality">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="half">
+          <label>Output File Name:</label>
+          <input type="text" name="output_name" placeholder="CompressedPDF">
+        </div>
+      </div>
+      <button type="submit">Compress PDF</button>
+    </form>
+  </div>
+</div>
+
+
+
   <footer>
     Made with ❤️ in Python & Flask
   </footer>
@@ -617,7 +267,6 @@
       fileList.forEach(file => dt.items.add(file));
       inputEl.files = dt.files;
     }
->>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
   </script>
 </body>
 </html>
