@@ -214,7 +214,7 @@
 </div>
 
 <!-- THIRD ROW: COMPRESSION TOOLS -->
-<div class="grid" style="margin-top: 40px;">
+<<div class="grid" style="margin-top: 40px;">
   <!-- COMPRESS PDF -->
   <div class="card">
     <h2>📉 Compress PDF</h2>
@@ -258,41 +258,49 @@
       <button type="submit">Compress Image</button>
     </form>
   </div>
+
+  <!-- OCR PDF -->
+  <div class="card">
+    <h2>🔍 OCR PDF</h2>
+    <form action="/ocr_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <div class="row">
+        <div class="half">
+          <label>Language:</label>
+          <input type="text" name="language" placeholder="eng">
+        </div>
+        <div class="half">
+          <label>Output File Name:</label>
+          <input type="text" name="output_name" placeholder="OCRText">
+        </div>
+      </div>
+      <button type="submit">Extract Text</button>
+    </form>
+  </div>
+
+  <!-- EDIT PDF -->
+  <div class="card">
+    <h2>✏️ Edit PDF</h2>
+    <form action="/edit_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <label>Text to Add:</label>
+      <textarea name="edit_text" rows="4" placeholder="Enter text to add..."></textarea>
+      <div class="row">
+        <div class="half">
+          <label>Page Number:</label>
+          <input type="number" name="page_number" min="1" placeholder="1">
+        </div>
+        <div class="half">
+          <label>Output File Name:</label>
+          <input type="text" name="output_name" placeholder="EditedPDF">
+        </div>
+      </div>
+      <button type="submit">Apply Edit</button>
+    </form>
+  </div>
 </div>
-
-<h2>AI Note Generator</h2>
-<form id="noteForm">
-  <input type="text" name="topic" placeholder="Enter main topic" required>
-  <button type="submit">Generate Subtopics</button>
-</form>
-
-<div id="subtopics"></div>
-<div id="notes"></div>
-
-<script>
-document.getElementById("noteForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const res = await fetch("/generate_subtopics", { method: "POST", body: formData });
-  const data = await res.json();
-  const subDiv = document.getElementById("subtopics");
-  subDiv.innerHTML = "<h3>Select Subtopics</h3>";
-  data.subtopics.forEach((sub, i) => {
-    subDiv.innerHTML += `<label><input type="checkbox" name="subtopics" value="${sub}"> ${sub}</label><br>`;
-  });
-  subDiv.innerHTML += `<button onclick="generateNotes()">Generate Notes</button>`;
-});
-
-async function generateNotes() {
-  const checkboxes = document.querySelectorAll("input[name='subtopics']:checked");
-  const formData = new FormData();
-  checkboxes.forEach(cb => formData.append("subtopics", cb.value));
-  const res = await fetch("/generate_notes", { method: "POST", body: formData });
-  const data = await res.json();
-  document.getElementById("notes").innerHTML = `<h3>Generated Notes</h3><pre>${data.notes}</pre>`;
-}
-</script>
-
 
   <footer>
     Made with ❤️ in Python & Flask
