@@ -3,8 +3,26 @@ from PyPDF2 import PdfReader, PdfWriter, PdfMerger
 from PIL import Image
 from io import BytesIO
 from werkzeug.utils import secure_filename
+import zipfile
+import fitz  # PyMuPDF
+import docx2pdf
+import tempfile
+import os
+from dotenv import load_dotenv
+load_dotenv()
+import base64
+import requests
+from flask import jsonify
+from gemini_notes import get_subtopics, get_notes  # if in separate file
+import google.generativeai as genai
+import base64
 
-app = Flask(__name__)
+# Configure Gemini with your API key
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_ENDPOINT = os.getenv("GEMINI_API_ENDPOINT")
+
+app = Flask(__name__)  
 
 @app.route("/")
 def index():
@@ -110,6 +128,116 @@ def compress_pdf():
 
     output_filename = f"{secure_filename(output_name)}.pdf"
     return send_file(output_stream, as_attachment=True, download_name=output_filename)
+
+# ---------- IMAGE EXTRACTION FROM PDF ----------
+@app.route("/extract_images", methods=["POST"])
+def extract_images():
+    file = request.files["pdf_file"]
+    output_name = request.form.get("output_name", "ExtractedImages")
+
+    pdf = fitz.open(stream=file.read(), filetype="pdf")
+    zip_stream = BytesIO()
+    with zipfile.ZipFile(zip_stream, "w") as zipf:
+        for page_index in range(len(pdf)):
+            images = pdf[page_index].get_images(full=True)
+            for img_index, img in enumerate(images):
+                xref = img[0]
+                base_image = pdf.extract_image(xref)
+                image_bytes = base_image["image"]
+                ext = base_image["ext"]
+                zipf.writestr(f"page{page_index+1}_img{img_index+1}.{ext}", image_bytes)
+    zip_stream.seek(0)
+    return send_file(zip_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.zip")
+
+# ---------- WORD TO PDF ----------x
+@app.route("/word_to_pdf", methods=["POST"])
+def word_to_pdf():
+    word_file = request.files["word_file"]
+    output_name = request.form.get("output_name", "ConvertedPDF")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, secure_filename(word_file.filename))
+        output_path = os.path.join(tmpdir, f"{secure_filename(output_name)}.pdf")
+        word_file.save(input_path)
+        docx2pdf.convert(input_path, output_path)
+        with open(output_path, "rb") as f:
+            pdf_bytes = f.read()
+    return send_file(BytesIO(pdf_bytes), as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+
+# ---------- PDF TO WORD ----------
+@app.route("/pdf_to_word", methods=["POST"])
+def pdf_to_word():
+    file = request.files["pdf_file"]
+    output_name = request.form.get("output_name", "ConvertedWord")
+
+    pdf = fitz.open(stream=file.read(), filetype="pdf")
+    text = "\n\n".join([page.get_text() for page in pdf])
+    doc_stream = BytesIO()
+    from docx import Document
+    doc = Document()
+    doc.add_paragraph(text)
+    doc.save(doc_stream)
+    doc_stream.seek(0)
+    return send_file(doc_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.docx")
+
+# ---------- IMAGE COMPRESSOR ----------
+@app.route("/compress_image", methods=["POST"])
+def compress_image():
+    file = request.files["image_file"]
+    quality = int(request.form.get("quality", 70))
+    output_name = request.form.get("output_name", "CompressedImage")
+
+    image = Image.open(file.stream)
+    output_stream = BytesIO()
+    image.save(output_stream, format="JPEG", quality=quality)
+    output_stream.seek(0)
+
+    return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.jpg")
+
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Use the Gemini model
+model = genai.GenerativeModel("gemini-pro")
+
+def summarize_pdf(pdf_bytes):
+    # Encode PDF to base64
+    encoded_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
+
+    # Prepare content parts
+    contents = [
+        {
+            "inline_data": {
+                "mime_type": "application/pdf",
+                "data": encoded_pdf
+            }
+        },
+        {
+            "text": "Summarize this PDF document."
+        }
+    ]
+
+    # Generate summary
+    response = model.generate_content(contents)
+    return response.text
+
+    
+# @app.route("/generate_subtopics", methods=["POST"])
+# def generate_subtopics():
+#     topic = request.form.get("topic", "").strip()
+#     if not topic:
+#         return "Topic is required", 400
+#     subtopics = get_subtopics(topic)
+#     return jsonify(subtopics=subtopics)
+
+# @app.route("/generate_notes", methods=["POST"])
+# def generate_notes():
+#     selected = request.form.getlist("subtopics")
+#     if not selected:
+#         return "No subtopics selected", 400
+#     notes = get_notes(selected)
+#     return jsonify(notes=notes)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
