@@ -4,25 +4,31 @@ from PIL import Image
 from io import BytesIO
 from werkzeug.utils import secure_filename
 import zipfile
-import fitz  # PyMuPDF
 import docx2pdf
 import tempfile
 import os
 from dotenv import load_dotenv
 load_dotenv()
 import base64
-import requests
-from flask import jsonify
-from gemini_notes import get_subtopics, get_notes  # if in separate file
 import google.generativeai as genai
-import base64
-
-# Configure Gemini with your API key
+from pdfminer.high_level import extract_text
+import tempfile
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_API_ENDPOINT = os.getenv("GEMINI_API_ENDPOINT")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 app = Flask(__name__)  
+
+def extract_text_with_pdfminer(pdf_bytes):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        tmp.write(pdf_bytes)
+        tmp_path = tmp.name
+    return extract_text(tmp_path)
+
 
 @app.route("/")
 def index():
@@ -195,48 +201,95 @@ def compress_image():
     return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.jpg")
 
 
-genai.configure(api_key=GEMINI_API_KEY)
+@app.route("/analyse_pdf", methods=["POST"])
+def analyse_pdf():
+    file = request.files.get("pdf_file")
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
 
-# Use the Gemini model
-model = genai.GenerativeModel("gemini-pro")
+    try:
+        pdf_bytes = file.read()
+        output_name = secure_filename(file.filename)
 
-def summarize_pdf(pdf_bytes):
-    # Encode PDF to base64
-    encoded_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
+        # Use PyPDF2 to extract text
+        extracted_text = extract_text_with_pdfminer(pdf_bytes)
 
-    # Prepare content parts
-    contents = [
-        {
-            "inline_data": {
-                "mime_type": "application/pdf",
-                "data": encoded_pdf
-            }
-        },
-        {
-            "text": "Summarize this PDF document."
-        }
-    ]
+        # Summarize with Gemini 2.5 Flash
+        prompt = f"Summarize the following PDF content:\n\n{extracted_text}"
+        response = model.generate_content(prompt)
+        summary = response.text
 
-    # Generate summary
-    response = model.generate_content(contents)
-    return response.text
-
+        return f"""
+            <h2>Summary of {output_name}</h2>
+            <div style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.5;">
+                {summary}
+            </div>
+        """
+    except Exception as e:
+        return f"Error analyzing PDF: {str(e)}", 500
     
-# @app.route("/generate_subtopics", methods=["POST"])
-# def generate_subtopics():
-#     topic = request.form.get("topic", "").strip()
-#     if not topic:
-#         return "Topic is required", 400
-#     subtopics = get_subtopics(topic)
-#     return jsonify(subtopics=subtopics)
+@app.route("/ocr_pdf", methods=["POST"])
+def ocr_pdf():
+    file = request.files.get("pdf_file")
+    output_name = request.form.get("output_name", "OCRText")
 
-# @app.route("/generate_notes", methods=["POST"])
-# def generate_notes():
-#     selected = request.form.getlist("subtopics")
-#     if not selected:
-#         return "No subtopics selected", 400
-#     notes = get_notes(selected)
-#     return jsonify(notes=notes)
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+
+    try:
+        # Save PDF temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(file.read())
+            tmp_path = tmp.name
+
+        # Extract text using pdfminer
+        text = extract_text(tmp_path)
+
+        output_stream = BytesIO()
+        output_stream.write(text.encode("utf-8"))
+        output_stream.seek(0)
+
+        return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.txt")
+    except Exception as e:
+        return f"❌ OCR failed: {str(e)}", 500
+
+@app.route("/edit_pdf", methods=["POST"])
+def edit_pdf():
+    file = request.files.get("pdf_file")
+    edit_text = request.form.get("edit_text", "").strip()
+    page_number = int(request.form.get("page_number", 1)) - 1
+    output_name = request.form.get("output_name", "EditedPDF")
+
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+    if not edit_text:
+        return "Please enter text to add", 400
+
+    try:
+        # Create overlay PDF with text
+        overlay_stream = BytesIO()
+        c = canvas.Canvas(overlay_stream, pagesize=letter)
+        c.drawString(72, 720, edit_text)  # Position: top-left
+        c.save()
+        overlay_stream.seek(0)
+
+        # Merge overlay onto original
+        reader = PdfReader(file.stream)
+        overlay_reader = PdfReader(overlay_stream)
+        writer = PdfWriter()
+
+        for i, page in enumerate(reader.pages):
+            if i == page_number:
+                page.merge_page(overlay_reader.pages[0])
+            writer.add_page(page)
+
+        output_stream = BytesIO()
+        writer.write(output_stream)
+        output_stream.seek(0)
+
+        return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+    except Exception as e:
+        return f"❌ PDF edit failed: {str(e)}", 500
 
 
 if __name__ == "__main__":
