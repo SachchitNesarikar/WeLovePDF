@@ -34,7 +34,6 @@ def extract_text_with_pdfminer(pdf_bytes):
     return extract_text(tmp_path)
 
 # ---------- ROUTES ----------
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -92,27 +91,16 @@ def split_pdf():
 def merge_pdfs():
     custom_name = request.form.get("output_name", "merged")
     merger = PdfMerger()
-
-    uploaded_files = [
-        request.files.get("pdf_file1"),
-        request.files.get("pdf_file2"),
-        request.files.get("pdf_file3")
-    ]
-
-    any_uploaded = False
+    uploaded_files = request.files.getlist("pdf_files")
+    if not uploaded_files or all(f.filename == "" for f in uploaded_files):
+        return "No files uploaded", 400
     for file in uploaded_files:
         if file and file.filename:
             merger.append(file.stream)
-            any_uploaded = True
-
-    if not any_uploaded:
-        return "No files uploaded", 400
-
     output_stream = BytesIO()
     merger.write(output_stream)
     merger.close()
     output_stream.seek(0)
-
     output_filename = f"{secure_filename(custom_name)}.pdf"
     return send_file(output_stream, as_attachment=True, download_name=output_filename)
 
