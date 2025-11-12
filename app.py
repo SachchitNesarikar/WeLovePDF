@@ -1,47 +1,41 @@
 from flask import Flask, render_template, request, send_file
 from PyPDF2 import PdfReader, PdfWriter, PdfMerger
 from PIL import Image
-import os
+from io import BytesIO
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-UPLOAD_FOLDER = "uploads"
-OUTPUT_FOLDER = "outputs"
-
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-
 # ---------- IMAGE TO PDF ----------
 @app.route("/image_to_pdf", methods=["POST"])
 def image_to_pdf():
     files = request.files.getlist("image_files")
-    output_name = request.form.get("output_name", "image_to_pdf")
+    output_name = request.form.get("output_name", "image_to_pdf").strip()
 
     image_list = []
     for file in files:
         if file and file.filename:
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            image = Image.open(filepath).convert("RGB")
-            image_list.append(image)
+            try:
+                image = Image.open(file.stream).convert("RGB")
+                image_list.append(image)
+            except Exception as e:
+                print(f"Skipping {file.filename}: {e}")
 
     if not image_list:
         return "No valid images uploaded", 400
 
-    output_path = os.path.join(OUTPUT_FOLDER, f"{secure_filename(output_name)}.pdf")
-    first_image = image_list[0]
-    other_images = image_list[1:] if len(image_list) > 1 else []
-    first_image.save(output_path, save_all=True, append_images=other_images)
+    if not output_name.lower().endswith(".pdf"):
+        output_name += ".pdf"
 
-    return send_file(output_path, as_attachment=True)
+    output_stream = BytesIO()
+    image_list[0].save(output_stream, save_all=True, append_images=image_list[1:], format="PDF")
+    output_stream.seek(0)
 
+    return send_file(output_stream, as_attachment=True, download_name=output_name)
 
 # ---------- SPLIT PDF ----------
 @app.route("/split", methods=["POST"])
@@ -51,25 +45,20 @@ def split_pdf():
     end_page = int(request.form.get("end_page"))
     custom_name = request.form.get("output_name", "split")
 
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
-
-    reader = PdfReader(filepath)
+    reader = PdfReader(file.stream)
     writer = PdfWriter()
 
     for i in range(start_page, end_page):
         writer.add_page(reader.pages[i])
 
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
+
     output_filename = f"{secure_filename(custom_name)}.pdf"
-    output_path = os.path.join(OUTPUT_FOLDER, output_filename)
-    with open(output_path, "wb") as f:
-        writer.write(f)
+    return send_file(output_stream, as_attachment=True, download_name=output_filename)
 
-    return send_file(output_path, as_attachment=True)
-
-
-# ---------- MERGE PDF (UP TO 3 FILES) ----------
+# ---------- MERGE PDF ----------
 @app.route("/merge", methods=["POST"])
 def merge_pdfs():
     custom_name = request.form.get("output_name", "merged")
@@ -84,20 +73,18 @@ def merge_pdfs():
     any_uploaded = False
     for file in uploaded_files:
         if file and file.filename:
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            merger.append(filepath)
+            merger.append(file.stream)
             any_uploaded = True
 
     if not any_uploaded:
         return "No files uploaded", 400
 
-    output_filename = f"{secure_filename(custom_name)}.pdf"
-    output_path = os.path.join(OUTPUT_FOLDER, output_filename)
-    merger.write(output_path)
+    output_stream = BytesIO()
+    merger.write(output_stream)
     merger.close()
+    output_stream.seek(0)
 
+<<<<<<< HEAD
     return send_file(output_path, as_attachment=True)
 
 # ---------- COMPRESS PDF ----------
@@ -134,6 +121,10 @@ def compress_pdf():
 
     return send_file(output_path, as_attachment=True)
 
+=======
+    output_filename = f"{secure_filename(custom_name)}.pdf"
+    return send_file(output_stream, as_attachment=True, download_name=output_filename)
+>>>>>>> fa5cdd5ecdc9ea2f74f24f9e7a8e4d64fdcdd47a
 
 if __name__ == "__main__":
     app.run(debug=True)
