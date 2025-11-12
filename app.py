@@ -14,17 +14,16 @@ from pdfminer.high_level import extract_text
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from docx import Document
+from pdf2image import convert_from_path
 
-# Load environment variables
 load_dotenv()
 
-# Configure Gemini API
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
-# Flask app
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), '')
 
 # ---------- HELPERS ----------
 def extract_text_with_pdfminer(pdf_bytes):
@@ -119,6 +118,7 @@ def compress_pdf():
     for page in reader.pages:
         page.compress_content_streams()
         writer.add_page(page)
+
 
     output_stream = BytesIO()
     writer.write(output_stream)
@@ -262,7 +262,7 @@ def ocr_pdf():
 def edit_pdf():
     file = request.files.get("pdf_file")
     edit_text = request.form.get("edit_text", "").strip()
-    page_number = int(request.form.get("page_number", 1)) - 1
+    page_number_str = request.form.get("page_number")
     output_name = request.form.get("output_name", "EditedPDF")
 
     if not file or not file.filename.endswith(".pdf"):
@@ -271,6 +271,9 @@ def edit_pdf():
         return "Please enter text to add", 400
 
     try:
+        # Default to first page if empty
+        page_number = int(page_number_str) - 1 if page_number_str else 0
+
         overlay_stream = BytesIO()
         c = canvas.Canvas(overlay_stream, pagesize=letter)
         c.drawString(72, 720, edit_text)
@@ -294,6 +297,35 @@ def edit_pdf():
     except Exception as e:
         return f"PDF edit failed: {str(e)}", 500
 
+@app.route("/extract_images", methods=["POST"])
+def extract_images():
+    pdf_file = request.files.get('pdf_file')
+    output_name = request.form.get('output_name') or "ExtractedImages"
+
+    if not pdf_file:
+        return "No file uploaded", 400
+
+    pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_file.filename)
+    pdf_file.save(pdf_path)
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        try:
+            images = convert_from_path(pdf_path, dpi=200)
+        except Exception as e:
+            os.remove(pdf_path)
+            return f"Error converting PDF: {e}"
+
+        for i, img in enumerate(images):
+            img_path = os.path.join(temp_dir, f"page_{i+1}.png")
+            img.save(img_path, "PNG")
+
+        zip_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{output_name}.zip")
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for img_name in os.listdir(temp_dir):
+                zipf.write(os.path.join(temp_dir, img_name), img_name)
+
+    os.remove(pdf_path)
+    return send_file(zip_path, as_attachment=True)
 
 # ---------- RUN ----------
 if __name__ == "__main__":
