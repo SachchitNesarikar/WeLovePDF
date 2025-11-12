@@ -1,4 +1,4 @@
-# 💖 WeLovePDF
+# WeLovePDF
 
 A powerful **Flask-based web app** that lets you perform all your essential **PDF and document operations** in one place — from merging and splitting to compressing, converting, analyzing, and even editing PDFs.  
 Simple, fast, and elegant — built with ❤️ for productivity.
