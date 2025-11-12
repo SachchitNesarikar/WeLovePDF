@@ -211,10 +211,10 @@ def analyse_pdf():
         pdf_bytes = file.read()
         output_name = secure_filename(file.filename)
 
-        # Use PyPDF2 to extract text
+    
         extracted_text = extract_text_with_pdfminer(pdf_bytes)
 
-        # Summarize with Gemini 2.5 Flash
+        
         prompt = f"Summarize the following PDF content:\n\n{extracted_text}"
         response = model.generate_content(prompt)
         summary = response.text
@@ -237,12 +237,12 @@ def ocr_pdf():
         return "Please upload a valid PDF file", 400
 
     try:
-        # Save PDF temporarily
+        
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(file.read())
             tmp_path = tmp.name
 
-        # Extract text using pdfminer
+        
         text = extract_text(tmp_path)
 
         output_stream = BytesIO()
@@ -251,7 +251,7 @@ def ocr_pdf():
 
         return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.txt")
     except Exception as e:
-        return f"❌ OCR failed: {str(e)}", 500
+        return f"OCR failed: {str(e)}", 500
 
 @app.route("/edit_pdf", methods=["POST"])
 def edit_pdf():
@@ -266,14 +266,14 @@ def edit_pdf():
         return "Please enter text to add", 400
 
     try:
-        # Create overlay PDF with text
+        
         overlay_stream = BytesIO()
         c = canvas.Canvas(overlay_stream, pagesize=letter)
-        c.drawString(72, 720, edit_text)  # Position: top-left
+        c.drawString(72, 720, edit_text)  
         c.save()
         overlay_stream.seek(0)
 
-        # Merge overlay onto original
+        
         reader = PdfReader(file.stream)
         overlay_reader = PdfReader(overlay_stream)
         writer = PdfWriter()
@@ -289,7 +289,7 @@ def edit_pdf():
 
         return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
     except Exception as e:
-        return f"❌ PDF edit failed: {str(e)}", 500
+        return f"PDF edit failed: {str(e)}", 500
 
 
 if __name__ == "__main__":
