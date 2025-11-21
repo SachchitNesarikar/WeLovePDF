@@ -15,29 +15,35 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from docx import Document
 from pdf2image import convert_from_path
+from flask import Flask, request, jsonify
+from pdf2image import convert_from_bytes
+from PIL import Image
+import pytesseract
+import io
+import google.genai as genai
+from google.genai import types
+from pptx import Presentation
+from pptx.util import Inches
+from generate import get_subtopics, get_notes
 
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.5-flash")
-
+client = genai.Client(api_key=GEMINI_API_KEY)
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), '')
+pytesseract.pytesseract.tesseract_cmd = r"/usr/bin/tesseract"
 
-# ---------- HELPERS ----------
 def extract_text_with_pdfminer(pdf_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(pdf_bytes)
         tmp_path = tmp.name
     return extract_text(tmp_path)
 
-# ---------- ROUTES ----------
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# ---------- IMAGE TO PDF ----------
 @app.route("/image_to_pdf", methods=["POST"])
 def image_to_pdf():
     files = request.files.getlist("image_files")
@@ -64,7 +70,6 @@ def image_to_pdf():
 
     return send_file(output_stream, as_attachment=True, download_name=output_name)
 
-# ---------- SPLIT PDF ----------
 @app.route("/split", methods=["POST"])
 def split_pdf():
     file = request.files["pdf_file"]
@@ -85,7 +90,6 @@ def split_pdf():
     output_filename = f"{secure_filename(custom_name)}.pdf"
     return send_file(output_stream, as_attachment=True, download_name=output_filename)
 
-# ---------- MERGE PDF ----------
 @app.route("/merge", methods=["POST"])
 def merge_pdfs():
     custom_name = request.form.get("output_name", "merged")
@@ -103,7 +107,6 @@ def merge_pdfs():
     output_filename = f"{secure_filename(custom_name)}.pdf"
     return send_file(output_stream, as_attachment=True, download_name=output_filename)
 
-# ---------- COMPRESS PDF ----------
 @app.route("/compress", methods=["POST"])
 def compress_pdf():
     file = request.files["pdf_file"]
@@ -127,7 +130,6 @@ def compress_pdf():
     output_filename = f"{secure_filename(output_name)}.pdf"
     return send_file(output_stream, as_attachment=True, download_name=output_filename)
 
-# ---------- DELETE PAGES ----------
 @app.route("/delete_pages", methods=["POST"])
 def delete_pages():
     file = request.files["pdf_file"]
@@ -161,7 +163,6 @@ def delete_pages():
 
     return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
 
-# ---------- WORD TO PDF ----------
 @app.route("/word_to_pdf", methods=["POST"])
 def word_to_pdf():
     word_file = request.files["word_file"]
@@ -177,7 +178,6 @@ def word_to_pdf():
 
     return send_file(BytesIO(pdf_bytes), as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
 
-# ---------- PDF TO WORD ----------
 @app.route("/pdf_to_word", methods=["POST"])
 def pdf_to_word():
     file = request.files["pdf_file"]
@@ -194,7 +194,6 @@ def pdf_to_word():
 
     return send_file(doc_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.docx")
 
-# ---------- IMAGE COMPRESSOR ----------
 @app.route("/compress_image", methods=["POST"])
 def compress_image():
     file = request.files["image_file"]
@@ -208,55 +207,37 @@ def compress_image():
 
     return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.jpg")
 
-# ---------- ANALYSE PDF ----------
-@app.route("/analyse_pdf", methods=["POST"])
-def analyse_pdf():
-    file = request.files.get("pdf_file")
-    if not file or not file.filename.endswith(".pdf"):
-        return "Please upload a valid PDF file", 400
+@app.route('/ocr_pdf', methods=['POST'])
+def ocr_pdf_handler():
+    if 'pdf_file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    pdf_bytes = request.files['pdf_file'].read()
 
     try:
-        pdf_bytes = file.read()
-        output_name = secure_filename(file.filename)
-        extracted_text = extract_text_with_pdfminer(pdf_bytes)
-
-        prompt = f"Summarize the following PDF content:\n\n{extracted_text}"
-        response = model.generate_content(prompt)
-        summary = response.text
-
-        return f"""
-            <h2>Summary of {output_name}</h2>
-            <div style="white-space: pre-wrap; font-family: sans-serif; line-height: 1.5;">
-                {summary}
-            </div>
-        """
+        images = convert_from_bytes(pdf_bytes, dpi=300)
     except Exception as e:
-        return f"Error analyzing PDF: {str(e)}", 500
+        return jsonify({'error': f'PDF conversion failed: {str(e)}'}), 500
 
-# ---------- OCR (TEXT EXTRACTION) ----------
-@app.route("/ocr_pdf", methods=["POST"])
-def ocr_pdf():
-    file = request.files.get("pdf_file")
-    output_name = request.form.get("output_name", "OCRText")
-
-    if not file or not file.filename.endswith(".pdf"):
-        return "Please upload a valid PDF file", 400
+    prompt_parts = [types.Part.from_text("Extract all text with formatting from these PDF pages:")]
+    for img in images:
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_bytes = buffered.getvalue()
+        prompt_parts.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
 
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(file.read())
-            tmp_path = tmp.name
-
-        text = extract_text(tmp_path)
-        output_stream = BytesIO()
-        output_stream.write(text.encode("utf-8"))
-        output_stream.seek(0)
-
-        return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.txt")
+        response = client.predict(
+            model="gemini-2.5-flash",
+            prompt=prompt_parts,
+            temperature=0,
+            top_k=1,
+            top_p=0.95,
+            max_output_tokens=1024,
+        )
+        return jsonify({'text': response.candidates[0].content})
     except Exception as e:
-        return f"OCR failed: {str(e)}", 500
+        return jsonify({'error': f'Gemini OCR failed: {str(e)}'}), 500
 
-# ---------- EDIT PDF ----------
 @app.route("/edit_pdf", methods=["POST"])
 def edit_pdf():
     file = request.files.get("pdf_file")
@@ -325,6 +306,247 @@ def extract_images():
     os.remove(pdf_path)
     return send_file(zip_path, as_attachment=True)
 
-# ---------- RUN ----------
+@app.route("/rotate_pdf", methods=["POST"])
+def rotate_pdf():
+    file = request.files["pdf_file"]
+    rotation_angle = int(request.form.get("rotation_angle", 90))
+    output_name = request.form.get("output_name", "RotatedPDF")
+
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+
+    reader = PdfReader(file.stream)
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        page.rotate(rotation_angle)
+        writer.add_page(page)
+
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
+
+    output_filename = f"{secure_filename(output_name)}.pdf"
+    return send_file(output_stream, as_attachment=True, download_name=output_filename)
+
+@app.route("/lock_pdf", methods=["POST"])
+def lock_pdf():
+    file = request.files.get("pdf_file")
+    password = request.form.get("password", "").strip()
+    output_name = request.form.get("output_name", "LockedPDF"
+                                   )
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+    if not password:
+        return "Please provide a password", 400
+    reader = PdfReader(file.stream)
+
+    writer = PdfWriter()
+    for page in reader.pages:
+        writer.add_page(page)
+
+    writer.encrypt(password)
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
+
+    return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+
+@app.route("/unlock_pdf", methods=["POST"])
+def unlock_pdf():
+    file = request.files.get("pdf_file")
+    password = request.form.get("password", "").strip()
+    output_name = request.form.get("output_name", "UnlockedPDF")
+
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+    if not password:
+        return "Please provide the password", 400
+    
+    reader = PdfReader(file.stream)
+
+    if reader.is_encrypted:
+        try:
+            reader.decrypt(password)
+        except Exception as e:
+            return f"Failed to unlock PDF: {str(e)}", 400
+        
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        writer.add_page(page)
+
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
+
+    return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+
+@app.route("/ppt_to_pdf", methods=["POST"])
+def ppt_to_pdf():
+    ppt_file = request.files.get("ppt_file")
+    output_name = request.form.get("output_name", "ConvertedPPT")
+
+    if not ppt_file or not ppt_file.filename.endswith((".ppt", ".pptx")):
+        return "Please upload a valid PowerPoint file", 400
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, secure_filename(ppt_file.filename))
+        output_path = os.path.join(tmpdir, f"{secure_filename(output_name)}.pdf")
+        ppt_file.save(input_path)
+
+        try:
+            os.system(f'libreoffice --headless --convert-to pdf "{input_path}" --outdir "{tmpdir}"')
+        except Exception as e:
+            return f"PPT to PDF conversion failed: {str(e)}", 500
+
+        with open(output_path, "rb") as f:
+            pdf_bytes = f.read()
+
+    return send_file(BytesIO(pdf_bytes), as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+
+@app.route("/pdf_to_ppt", methods=["POST"])
+def pdf_to_ppt():
+    pdf_file = request.files.get("pdf_file")
+    output_name = request.form.get("output_name", "ConvertedPPT")
+
+    if not pdf_file or not pdf_file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+
+    try:
+        images = convert_from_bytes(pdf_file.read(), dpi=200)
+    except Exception as e:
+        return f"PDF to images conversion failed: {str(e)}", 500
+
+    prs = Presentation()
+    blank_slide_layout = prs.slide_layouts[6]
+
+    for img in images:
+        slide = prs.slides.add_slide(blank_slide_layout)
+        img_stream = BytesIO()
+        img.save(img_stream, format="PNG")
+        img_stream.seek(0)
+        slide.shapes.add_picture(img_stream, Inches(0), Inches(0), width=prs.slide_width, height=prs.slide_height)
+
+    ppt_stream = BytesIO()
+    prs.save(ppt_stream)
+    ppt_stream.seek(0)
+
+    return send_file(ppt_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pptx")
+
+@app.route("/crop_pdf", methods=["POST"])
+def crop_pdf():
+    file = request.files.get("pdf_file")
+    crop_values = request.form.get("crop_values", "").strip()
+    output_name = request.form.get("output_name", "CroppedPDF")
+
+    if not file or not file.filename.endswith(".pdf"):
+        return "Please upload a valid PDF file", 400
+    if not crop_values:
+        return "Please provide crop values", 400
+
+    try:
+        x1, y1, x2, y2 = map(float, crop_values.split(","))
+    except:
+        return "Invalid crop values format", 400
+
+    reader = PdfReader(file.stream)
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        page.mediabox.lower_left = (x1, y1)
+        page.mediabox.upper_right = (x2, y2)
+        writer.add_page(page)
+
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
+    return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+
+@app.route("/sign_pdf", methods=["POST"])
+def sign_pdf():
+    pdf_file = request.files.get("pdf_file")
+    signature_file = request.files.get("signature_file")
+    position = request.form.get("signature_position", "100,100,200,80") 
+    output_name = request.form.get("output_name", "SignedPDF")
+
+    if not pdf_file or not signature_file:
+        return "Please upload PDF and signature image", 400
+
+    try:
+        x, y, w, h = map(float, position.split(","))
+    except:
+        return "Invalid position format", 400
+
+    reader = PdfReader(pdf_file.stream)
+    writer = PdfWriter()
+
+    for page in reader.pages:
+        packet = BytesIO()
+        can = canvas.Canvas(packet, pagesize=letter)
+        can.drawImage(signature_file, x, y, width=w, height=h, preserveAspectRatio=True, mask='auto')
+        can.save()
+        packet.seek(0)
+
+        overlay = PdfReader(packet)
+        page.merge_page(overlay.pages[0])
+        writer.add_page(page)
+
+    output_stream = BytesIO()
+    writer.write(output_stream)
+    output_stream.seek(0)
+
+    return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.pdf")
+
+@app.route("/generate_notes", methods=["POST"])
+def generate_notes_route():
+    heading = request.form.get("heading").strip()
+    
+    if not heading:
+        return jsonify({"error": "Please provide a heading"}), 400
+    
+    subtopics = get_subtopics(heading)
+    if not subtopics:
+        return jsonify({"error": "No subtopics generated. Try a different heading."}), 400
+    
+    notes = get_notes(subtopics)
+
+    pdf_stream = BytesIO()
+    pdf_canvas = canvas.Canvas(pdf_stream, pagesize=letter)
+    
+    pdf_canvas.setFont("Helvetica-Bold", 16)
+    pdf_canvas.drawString(100, 750, f"Topic: {heading}")
+    pdf_canvas.setFont("Helvetica", 12)
+    
+    y_position = 730
+    pdf_canvas.drawString(100, y_position, "Subtopics:")
+    y_position -= 20
+    
+    for i, subtopic in enumerate(subtopics, start=1):
+        pdf_canvas.drawString(100, y_position, f"{i}. {subtopic}")
+        y_position -= 15
+
+    pdf_canvas.showPage()
+    pdf_canvas.setFont("Helvetica-Bold", 16)
+    pdf_canvas.drawString(100, 750, f"Notes on {heading}")
+    pdf_canvas.setFont("Helvetica", 12)
+    y_position = 730
+    pdf_canvas.drawString(100, y_position, "Notes:")
+    y_position -= 20
+    
+    pdf_canvas.setFont("Helvetica", 10)
+    lines = notes.split("\n")
+    for line in lines:
+        pdf_canvas.drawString(100, y_position, line)
+        y_position -= 12
+        if y_position < 50:  
+            pdf_canvas.showPage()
+            y_position = 750  
+
+    pdf_canvas.save()
+    pdf_stream.seek(0)
+
+    return send_file(pdf_stream, as_attachment=True, download_name=f"{heading}_notes.pdf")
+
 if __name__ == "__main__":
     app.run(debug=True)

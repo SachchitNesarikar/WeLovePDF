@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ILovePDF v2</title>
+  <title>WeLovePDF</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -50,6 +50,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
     input[type="file"],
     input[type="number"],
@@ -104,7 +105,6 @@
     </form>
   </div>
 
-  <!-- PDF IMAGE EXTRACTION -->
   <div class="card">
     <h2>🖼️ Extract Images from PDF</h2>
     <form action="/extract_images" method="post" enctype="multipart/form-data">
@@ -116,7 +116,6 @@
     </form>
   </div>
 
-  <!-- WORD TO PDF -->
   <div class="card">
     <h2>📄 Word ➡️ PDF</h2>
     <form action="/word_to_pdf" method="post" enctype="multipart/form-data">
@@ -198,7 +197,6 @@
     </form>
   </div>
 
-  <!-- ANALYSE PDF -->
   <div class="card">
     <h2>🔍 Analyse PDF</h2>
     <form action="/analyse_pdf" method="post" enctype="multipart/form-data">
@@ -209,9 +207,7 @@
   </div>
 </div>
 
-<!-- THIRD ROW: COMPRESSION TOOLS -->
 <<div class="grid" style="margin-top: 40px;">
-  <!-- COMPRESS PDF -->
   <div class="card">
     <h2>📉 Compress PDF</h2>
     <form action="/compress" method="post" enctype="multipart/form-data">
@@ -235,7 +231,6 @@
     </form>
   </div>
 
-  <!-- COMPRESS IMAGE -->
   <div class="card">
     <h2>🗜️ Compress Image</h2>
     <form action="/compress_image" method="post" enctype="multipart/form-data">
@@ -255,7 +250,6 @@
     </form>
   </div>
 
-  <!-- OCR PDF -->
   <div class="card">
     <h2>🔍 OCR PDF</h2>
     <form action="/ocr_pdf" method="post" enctype="multipart/form-data">
@@ -275,7 +269,6 @@
     </form>
   </div>
 
-  <!-- EDIT PDF -->
   <div class="card">
     <h2>✏️ Edit PDF</h2>
     <form action="/edit_pdf" method="post" enctype="multipart/form-data">
@@ -298,79 +291,193 @@
   </div>
 </div>
 
-  <footer>
-    Made with ❤️ in Python & Flask
-  </footer>
+<div class="grid" style="margin-top: 40px;">
+  <div class="card">
+    <h2>🔄 Rotate PDF</h2>
+    <form action="/rotate_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
 
-  <script>
-    // === IMAGE HANDLER ===
-    const imageInput = document.getElementById("imageInput");
-    const addImageBtn = document.getElementById("addImageBtn");
-    const imagePreviewList = document.getElementById("imagePreviewList");
-    let allImageFiles = [];
+      <label>Rotation Angle:</label>
+      <input type="number" name="rotation_angle" value="90" min="0" max="360">
 
-    addImageBtn.addEventListener("click", () => {
-      const newInput = document.createElement("input");
-      newInput.type = "file";
-      newInput.accept = "image/*";
-      newInput.multiple = true;
-      newInput.click();
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="RotatedPDF">
 
-      newInput.addEventListener("change", (e) => {
-        const newFiles = Array.from(e.target.files);
-        allImageFiles.push(...newFiles);
-        updatePreview(allImageFiles, imagePreviewList, imageInput);
-      });
-    });
+      <button type="submit">Rotate PDF</button>
+    </form>
+  </div>
 
-    imageInput.addEventListener("change", (e) => {
-      allImageFiles = Array.from(e.target.files);
+  <div class="card">
+    <h2>🔐 Lock PDF</h2>
+    <form action="/lock_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <label>Set Password:</label>
+      <input type="text" name="password" placeholder="Enter password" required>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="LockedPDF">
+      <button type="submit">Lock PDF</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>🔓 Unlock PDF</h2>
+    <form action="/unlock_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File (Locked):</label>
+      <input type="file" name="pdf_file" required>
+      <label>Password:</label>
+      <input type="text" name="password" placeholder="Enter password" required>
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="UnlockedPDF">
+      <button type="submit">Unlock PDF</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>📊 PowerPoint ➡ PDF</h2>
+    <form action="/ppt_to_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PPT/PPTX File:</label>
+      <input type="file" name="ppt_file" accept=".ppt,.pptx" required>
+
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="ConvertedPPT">
+
+      <button type="submit">Convert to PDF</button>
+    </form>
+  </div>
+</div>
+
+<div class="grid" style="margin-top: 40px;">
+  <div class="card">
+    <h2>✂️ Crop PDF</h2>
+    <form action="/crop_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+      <label>Crop Area (x1,y1,x2,y2):</label>
+      <input type="text" name="crop_values" placeholder="50,50,500,700">
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="CroppedPDF">
+      <button type="submit">Crop PDF</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>📑 Generate PDF from Topic</h2>
+    <form action="/generate_notes" method="post" enctype="multipart/form-data">
+      <label>Enter Topic/Title:</label>
+      <input type="text" name="heading" required placeholder="Enter a topic for PDF generation">
+
+      <label>Output PDF Name:</label>
+      <input type="text" name="output_name" placeholder="GeneratedNotesPDF" required>
+
+      <button type="submit">Generate PDF with Notes</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>✍️ Sign PDF</h2>
+    <form action="/sign_pdf" method="post" enctype="multipart/form-data">
+      <label>Select PDF File:</label>
+      <input type="file" name="pdf_file" required>
+
+      <label>Upload Signature Image:</label>
+      <input type="file" name="signature_file" accept="image/*" required>
+
+      <label>Signature Position (x,y,width,height):</label>
+      <input type="text" name="signature_position" placeholder="100,150,200,80">
+
+      <label>Output File Name:</label>
+      <input type="text" name="output_name" placeholder="SignedPDF">
+
+      <button type="submit">Sign PDF</button>
+    </form>
+</div>
+
+<div class="card">
+  <h2>📑 PDF ➡ PowerPoint</h2>
+  <form action="/pdf_to_ppt" method="post" enctype="multipart/form-data">
+    <label>Select PDF File:</label>
+    <input type="file" name="pdf_file" required>
+
+    <label>Output File Name:</label>
+    <input type="text" name="output_name" placeholder="ConvertedPPT">
+
+    <button type="submit">Convert to PowerPoint</button>
+  </form>
+</div>
+
+
+</div>
+
+<footer> Made with ❤️ in Python & Flask </footer>
+
+<script>
+  const imageInput = document.getElementById("imageInput");
+  const addImageBtn = document.getElementById("addImageBtn");
+  const imagePreviewList = document.getElementById("imagePreviewList");
+  let allImageFiles = [];
+
+  addImageBtn.addEventListener("click", () => {
+    const newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.accept = "image/*";
+    newInput.multiple = true;
+    newInput.click();
+
+    newInput.addEventListener("change", (e) => {
+      const newFiles = Array.from(e.target.files);
+      allImageFiles.push(...newFiles);
       updatePreview(allImageFiles, imagePreviewList, imageInput);
     });
+  });
 
-    // === MERGE HANDLER ===
-    const mergeInput = document.getElementById("mergeInput");
-    const addMergeBtn = document.getElementById("addMergeBtn");
-    const mergePreviewList = document.getElementById("mergePreviewList");
-    let allMergeFiles = [];
+  imageInput.addEventListener("change", (e) => {
+    allImageFiles = Array.from(e.target.files);
+    updatePreview(allImageFiles, imagePreviewList, imageInput);
+  });
 
-    addMergeBtn.addEventListener("click", () => {
-      const newInput = document.createElement("input");
-      newInput.type = "file";
-      newInput.accept = "application/pdf";
-      newInput.multiple = true;
-      newInput.click();
+  const mergeInput = document.getElementById("mergeInput");
+  const addMergeBtn = document.getElementById("addMergeBtn");
+  const mergePreviewList = document.getElementById("mergePreviewList");
+  let allMergeFiles = [];
 
-      newInput.addEventListener("change", (e) => {
-        const newFiles = Array.from(e.target.files);
-        allMergeFiles.push(...newFiles);
-        updatePreview(allMergeFiles, mergePreviewList, mergeInput);
-      });
-    });
+  addMergeBtn.addEventListener("click", () => {
+    const newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.accept = "application/pdf";
+    newInput.multiple = true;
+    newInput.click();
 
-    mergeInput.addEventListener("change", (e) => {
-      allMergeFiles = Array.from(e.target.files);
+    newInput.addEventListener("change", (e) => {
+      const newFiles = Array.from(e.target.files);
+      allMergeFiles.push(...newFiles);
       updatePreview(allMergeFiles, mergePreviewList, mergeInput);
     });
+  });
 
-    // === COMMON PREVIEW UPDATER ===
-    function updatePreview(fileList, previewList, inputEl) {
-      if (fileList.length === 0) {
-        previewList.textContent = "No files added yet";
-        return;
-      }
-      previewList.innerHTML = "";
-      fileList.forEach((file, i) => {
-        const div = document.createElement("div");
-        div.textContent = `${i + 1}. ${file.name}`;
-        previewList.appendChild(div);
-      });
+  mergeInput.addEventListener("change", (e) => {
+    allMergeFiles = Array.from(e.target.files);
+    updatePreview(allMergeFiles, mergePreviewList, mergeInput);
+  });
 
-      // Replace inputEl's files
-      const dt = new DataTransfer();
-      fileList.forEach(file => dt.items.add(file));
-      inputEl.files = dt.files;
+  function updatePreview(fileList, previewList, inputEl) {
+    if (fileList.length === 0) {
+      previewList.textContent = "No files added yet";
+      return;
     }
-  </script>
+    previewList.innerHTML = "";
+    fileList.forEach((file, i) => {
+      const div = document.createElement("div");
+      div.textContent = `${i + 1}. ${file.name}`;
+      previewList.appendChild(div);
+    });
+
+    const dt = new DataTransfer();
+    fileList.forEach(file => dt.items.add(file));
+    inputEl.files = dt.files;
+  }
+
+</script>
 </body>
 </html>
