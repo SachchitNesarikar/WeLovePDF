@@ -91,9 +91,7 @@
 <body>
   <h1> WeLovePDF </h1>
 
-<!-- FIRST ROW: CONVERSION TOOLS -->
 <div class="grid">
-  <!-- IMAGE TO PDF -->
   <div class="card">
     <h2>🖼️ Extract Images from PDF</h2>
     <form action="/extract_images" method="post" enctype="multipart/form-data">
@@ -127,7 +125,6 @@
     </form>
   </div>
 
-  <!-- PDF TO WORD -->
   <div class="card">
     <h2>📤 PDF ➡️ Word</h2>
     <form action="/pdf_to_word" method="post" enctype="multipart/form-data">
@@ -141,7 +138,6 @@
 </div>
 
 <div class="grid" style="margin-top: 40px;">
-  <!-- SPLIT PDF -->
   <div class="card">
     <h2>✂️ Split PDF</h2>
     <form action="/split" method="post" enctype="multipart/form-data">
@@ -163,7 +159,6 @@
     </form>
   </div>
 
-  <!-- MERGE PDF -->
   <div class="card">
     <h2>🔗 Merge PDFs</h2>
     <form id="mergeForm" action="/merge" method="post" enctype="multipart/form-data">
@@ -177,7 +172,6 @@
     </form>
   </div>
 
-  <!-- DELETE PDF PAGES -->
   <div class="card">
     <h2>🗑️ Delete PDF Pages</h2>
     <form action="/delete_pages" method="post" enctype="multipart/form-data">
@@ -251,10 +245,10 @@
   </div>
 
   <div class="card">
-    <h2>🔍 OCR PDF</h2>
-    <form action="/ocr_pdf" method="post" enctype="multipart/form-data">
-      <label>Select PDF File:</label>
-      <input type="file" name="pdf_file" required>
+    <h2>🖼️ OCR Image</h2>
+    <form action="/ocr_image" method="post" enctype="multipart/form-data">
+      <label>Select Image File:</label>
+      <input type="file" name="image_file" accept="image/*" required>
       <div class="row">
         <div class="half">
           <label>Language:</label>

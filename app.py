@@ -25,6 +25,8 @@ from google.genai import types
 from pptx import Presentation
 from pptx.util import Inches
 from generate import get_subtopics, get_notes
+from ocr import ocr_image_to_text, ocr_pdf_to_text, text_to_pdf
+
 
 load_dotenv()
 
@@ -207,36 +209,36 @@ def compress_image():
 
     return send_file(output_stream, as_attachment=True, download_name=f"{secure_filename(output_name)}.jpg")
 
-@app.route('/ocr_pdf', methods=['POST'])
-def ocr_pdf_handler():
-    if 'pdf_file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-    pdf_bytes = request.files['pdf_file'].read()
+# @app.route('/ocr_pdf', methods=['POST'])
+# def ocr_pdf_handler():
+#     if 'pdf_file' not in request.files:
+#         return jsonify({'error': 'No file uploaded'}), 400
+#     pdf_bytes = request.files['pdf_file'].read()
 
-    try:
-        images = convert_from_bytes(pdf_bytes, dpi=300)
-    except Exception as e:
-        return jsonify({'error': f'PDF conversion failed: {str(e)}'}), 500
+#     try:
+#         images = convert_from_bytes(pdf_bytes, dpi=300)
+#     except Exception as e:
+#         return jsonify({'error': f'PDF conversion failed: {str(e)}'}), 500
 
-    prompt_parts = [types.Part.from_text("Extract all text with formatting from these PDF pages:")]
-    for img in images:
-        buffered = BytesIO()
-        img.save(buffered, format="PNG")
-        img_bytes = buffered.getvalue()
-        prompt_parts.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
+#     prompt_parts = [types.Part.from_text("Extract all text with formatting from these PDF pages:")]
+#     for img in images:
+#         buffered = BytesIO()
+#         img.save(buffered, format="PNG")
+#         img_bytes = buffered.getvalue()
+#         prompt_parts.append(types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
 
-    try:
-        response = client.predict(
-            model="gemini-2.5-flash",
-            prompt=prompt_parts,
-            temperature=0,
-            top_k=1,
-            top_p=0.95,
-            max_output_tokens=1024,
-        )
-        return jsonify({'text': response.candidates[0].content})
-    except Exception as e:
-        return jsonify({'error': f'Gemini OCR failed: {str(e)}'}), 500
+#     try:
+#         response = client.predict(
+#             model="gemini-2.5-flash",
+#             prompt=prompt_parts,
+#             temperature=0,
+#             top_k=1,
+#             top_p=0.95,
+#             max_output_tokens=1024,
+#         )
+#         return jsonify({'text': response.candidates[0].content})
+#     except Exception as e:
+#         return jsonify({'error': f'Gemini OCR failed: {str(e)}'}), 500
 
 @app.route("/edit_pdf", methods=["POST"])
 def edit_pdf():
@@ -547,6 +549,40 @@ def generate_notes_route():
     pdf_stream.seek(0)
 
     return send_file(pdf_stream, as_attachment=True, download_name=f"{heading}_notes.pdf")
+
+@app.route("/ocr_image", methods=["POST"])
+def ocr_image():
+    if 'image_file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    image_file = request.files['image_file']
+
+    try:
+        image_bytes = image_file.read()
+        text = ocr_image_to_text(image_bytes)
+
+        pdf_path = "output_image.pdf"
+        text_to_pdf(text, pdf_path)
+     
+        return send_file(pdf_path, as_attachment=True, download_name="ocr_output.pdf", mimetype='application/pdf')
+    except Exception as e:
+        return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
+
+@app.route("/ocr_pdf", methods=["POST"])
+def ocr_pdf():
+    if 'pdf_file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    pdf_file = request.files['pdf_file']
+
+    try:
+        pdf_bytes = pdf_file.read()
+        text = ocr_pdf_to_text(pdf_bytes)
+        
+        pdf_path = "output_pdf.pdf"
+        text_to_pdf(text, pdf_path)
+        
+        return send_file(pdf_path, as_attachment=True, download_name="ocr_output.pdf", mimetype='application/pdf')
+    except Exception as e:
+        return jsonify({"error": f"Failed to process PDF: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
